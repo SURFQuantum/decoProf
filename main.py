@@ -179,9 +179,8 @@ def inject_decorator(src_tree, function_name, decorator_name):
     else:
         print_dbg_info('Function "' + function_name + '" is not a member of a class')
 
-    # decorator_name = 'test'
-
     print_dbg_info(ast.dump(src_tree))
+
     for node in ast.walk(src_tree):
         if is_class:
             if isinstance(node, ast.ClassDef) and node.name == pattern_names[0]:
@@ -203,7 +202,9 @@ def inject_import(src_tree, module_name, class_name):
     :param class_name: Class name from the 'module_name'
     :return: None
     """
-    import_node = ast.ImportFrom(module=module_name, names=[ast.alias(name=class_name, asname='gp')], level=0)
+    import_node = ast.ImportFrom(module=module_name,
+                                 names=[ast.alias(name=class_name, asname='gp')],
+                                 level=0)
     src_tree.body.insert(0, import_node)
 
 
@@ -244,7 +245,8 @@ def make_working_copy_of_src(src_dir_name, dst_dir_name):
     :param dst_dir_name: Path to the working directory
     :return: None
     """
-    print_dbg_info('Copying sources to the temporary directory: ' + src_dir_name + ' --> ' + dst_dir_name)
+    print_dbg_info('Copying sources to the temporary directory: ' + src_dir_name
+                   + ' --> ' + dst_dir_name)
     shutil.copytree('./' + src_dir_name, './' + dst_dir_name, dirs_exist_ok=True)
 
 
@@ -307,7 +309,7 @@ def main(profiler_types, module_name, module_class_name):
     # Inject decorator into the source code
     inject_decorator(src_tree, args.n, profiler_decorator_name)
 
-    # Inject "import"
+    # Inject "import" statement into the source code
     inject_import(src_tree, module_name, module_class_name)
 
     print_dbg_info('Modified code:')
@@ -317,7 +319,9 @@ def main(profiler_types, module_name, module_class_name):
     dump_decorated_src(src_tree, working_copy_filename)
 
     print_msg_with_header('', '--------------------')
-    print_msg_with_header('', 'Done!')
+    print_msg_with_header('', 'Finished...')
+    print_msg_with_header('', 'See %s for the modified copy of the original code'
+                          % working_copy_filename)
 
 
 if __name__ == '__main__':
@@ -338,5 +342,7 @@ if __name__ == '__main__':
     profiler_module_name = 'genericProfiler'
     profiler_class_name = 'ProfileDecorators'
     profiler_types = {'cpu': 'gp.cprofile_decorator',
-                      'mem': 'gp.memory_profiler_decorator'}
+                      'mem': 'gp.memory_profiler_decorator',
+                      'call_stack': 'gp.pyinstrument_decorator',
+                      }
     main(profiler_types, profiler_module_name, profiler_class_name)
