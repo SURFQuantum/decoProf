@@ -104,7 +104,9 @@ def parse_cli(known_profiler_types):
     parser.add_argument('-n', metavar='<function name>', type=str,
                         help='Function name to be analyzed.')
     parser.add_argument('-t', metavar='<profiler type>', type=str,
-                        help='Type of the profiler to be used ("cpu", "mem").')
+                        help='Type of the profiler to be used '
+                             '(available options: '
+                             + ', '.join(known_profiler_types.keys()) + ').')
 
     # Check if we have enough arguments, otherwise print error message and help
     if len(sys.argv) > 1:
@@ -126,9 +128,9 @@ def parse_cli(known_profiler_types):
         print_dbg_info('Profiler type: \t' + str(args.t))
 
         # Check that the profiler type is knowns
-        if args.t not in known_profiler_types:
+        if args.t not in known_profiler_types.keys():
             print_err_info('Unknown profiler type. Available options: '
-                           + ', '.join(known_profiler_types))
+                           + ', '.join(known_profiler_types.keys()))
             exit(1)
     else:
         print_err_info('No CLI arguments passed.')
@@ -265,32 +267,24 @@ def detect_prof_type(args, known_profiler_types):
     :param known_profiler_types: List of known profiler types
     :return: Decorator name
     """
-    profiler_decorator_name = ''
-    # 'gp.cprofile_decorator'
-    if args.t == 'cpu':
-        profiler_decorator_name = 'gp.cprofile_decorator'
-    if args.t == 'mem':
-        profiler_decorator_name = 'gp.memory_profiler_decorator'
-
-    return profiler_decorator_name
+    return known_profiler_types[args.t]
 
 
-def main(module_name, module_class_name):
+def main(profiler_types, module_name, module_class_name):
     """
     1) Analyze CLI arguments
     2) Generate a call tree
+    :param profiler_types: Dictionary of profiler types and corresponding decorator names
     :param module_name: Name of the module that should be added to the "import"
                         statement at the header of the script
     :param module_class_name: Name of the class from the "module_name"
     :return: None
     """
-    known_profiler_types = ["cpu", "mem"]
-
     # Parse CLI arguments
-    args = parse_cli(known_profiler_types)
+    args = parse_cli(profiler_types)
 
     # Detect the profiler type
-    profiler_decorator_name = detect_prof_type(args, known_profiler_types)
+    profiler_decorator_name = detect_prof_type(args, profiler_types)
 
     print_msg_with_header('', '--------------------')
     print_msg_with_header('', 'Starting decorator injector...')
@@ -341,8 +335,8 @@ if __name__ == '__main__':
     print_msg_with_header('', '')
 
     # example: python3 main.py -f factorial.py -p examples -n benchmark
-    # TODO:
-    #  - make it work for functions with an arbitrary number of arguments
     profiler_module_name = 'genericProfiler'
     profiler_class_name = 'ProfileDecorators'
-    main(profiler_module_name, profiler_class_name)
+    profiler_types = {'cpu': 'gp.cprofile_decorator',
+                      'mem': 'gp.memory_profiler_decorator'}
+    main(profiler_types, profiler_module_name, profiler_class_name)
