@@ -11,9 +11,9 @@ import astunparse
 
 def print_msg_with_header(msg_header, msg):
     """
-    Print a message with a header to terminal.
-    :param msg_header: Header of the message.
-    :param msg: Message body.
+    Print a message with a header to terminal
+    :param msg_header: Header of the message
+    :param msg: Message body
     :return: None
     """
     print(msg_header, end=' ')
@@ -22,8 +22,8 @@ def print_msg_with_header(msg_header, msg):
 
 def print_dbg_info(msg):
     """
-    Print a debug message to terminal.
-    :param msg: Message body.
+    Print a debug message to terminal
+    :param msg: Message body
     :return: None
     """
     msg_header = "== DEBUG =="
@@ -33,8 +33,8 @@ def print_dbg_info(msg):
 
 def print_err_info(msg):
     """
-    Print an error message to terminal.
-    :param msg: Message body.
+    Print an error message to terminal
+    :param msg: Message body
     :return: None
     """
     msg_header = "== ERROR =="
@@ -44,10 +44,10 @@ def print_err_info(msg):
 def generate_call_tree(args, working_dir_name):
     """
     Generate a call tree using PyCG package (see https://github.com/vitsalis/PyCG).
-    PyCG is called using a subprocess and generates a JSON file as a result of its execution.
-    :param args: List of CLI arguments passed to this script.
+    PyCG is called using a subprocess and generates a JSON file as a result of its execution
+    :param args: List of CLI arguments passed to this script
     :param working_dir_name: Name of the working directory where JSON file will be stored. It's
-                             also used as a basename for the JSON file.
+                             also used as a basename for the JSON file
     :return: Output filename
     """
     # Assemble unique output filename
@@ -63,9 +63,9 @@ def generate_call_tree(args, working_dir_name):
 
 def read_call_tree(filename):
     """
-    Read the call tree from a file.
-    :param filename: Filename.
-    :return: Dictionary of a call tree.
+    Read the call tree from a file
+    :param filename: Filename
+    :return: Dictionary of a call tree
     """
     call_tree = None
     with open(filename) as json_file:
@@ -76,10 +76,10 @@ def read_call_tree(filename):
 def check_arg_existence(arg, arg_name, parser):
     """
     Check existence of a mandatory argument. Throw an error and exit if argument
-    is not specified.
-    :param arg: Argument to be checked.
-    :param arg_name: Argument's meta name.
-    :param parser: Parser object.
+    is not specified
+    :param arg: Argument to be checked
+    :param arg_name: Argument's meta name
+    :param parser: Parser object
     :return: None
     """
     if arg is None:
@@ -127,9 +127,9 @@ def parse_cli():
 
 def append_decorator_to_tree(node, function_name, decorator_name):
     """
-    Append decorator to the AST's structure.
-    :param node: Node which should contain the function.
-    :param function_name: Function name to which we should add decorator to.
+    Append decorator to the AST's structure
+    :param node: Node which should contain the function
+    :param function_name: Function name to which we should add decorator to
     :param decorator_name: Name of the decorator
     :return: None
     """
@@ -148,9 +148,9 @@ def append_decorator_to_tree(node, function_name, decorator_name):
 
 def inject_decorator(src_tree, function_name, decorator_name):
     """
-    Inject decorator to the AST.
+    Inject decorator to the AST
     :param src_tree: AST
-    :param function_name: Function name to which the decorator should be added to.
+    :param function_name: Function name to which the decorator should be added to
     :param decorator_name: Name of the decorator that should be injected
     :return: None
     """
@@ -194,9 +194,9 @@ def inject_import(src_tree, module_name, class_name):
 
 def parse_src_file(filename):
     """
-    Parse source file to build AST.
-    :param filename: Filename.
-    :return: AST object.
+    Parse source file to build AST
+    :param filename: Filename
+    :return: AST object
     """
     file = open(filename, 'r')
     code = file.read()
@@ -209,9 +209,9 @@ def parse_src_file(filename):
 
 def create_tmp_dir(args):
     """
-    Create temporary directory.
-    :param args: List of CLI arguments.
-    :return: Name of the created directory.
+    Create temporary directory
+    :param args: List of CLI arguments
+    :return: Name of the created directory
     """
     timestamp = str(time.time()).replace('.', '')
     dir_name = str(args.p) + "_" + timestamp
@@ -224,9 +224,9 @@ def create_tmp_dir(args):
 
 def make_working_copy_of_src(src_dir_name, dst_dir_name):
     """
-    Copy source files to the working directory.
-    :param src_dir_name: Path to the directory with source files.
-    :param dst_dir_name: Path to the working directory.
+    Copy source files to the working directory
+    :param src_dir_name: Path to the directory with source files
+    :param dst_dir_name: Path to the working directory
     :return: None
     """
     print_dbg_info('Copying sources to the temporary directory: ' + src_dir_name + ' --> ' + dst_dir_name)
@@ -235,9 +235,9 @@ def make_working_copy_of_src(src_dir_name, dst_dir_name):
 
 def dump_decorated_src(src_tree, working_copy_filename):
     """
-    Write AST to the file.
-    :param src_tree: AST object.
-    :param working_copy_filename: Filename AST should be written to.
+    Write AST to the file
+    :param src_tree: AST object
+    :param working_copy_filename: Filename AST should be written into
     :return: None
     """
     file = open(working_copy_filename, 'w')
@@ -245,11 +245,14 @@ def dump_decorated_src(src_tree, working_copy_filename):
     file.close()
 
 
-def main(decorator_name, module_name, class_name):
+def main(decorator_name, module_name, module_class_name):
     """
     1) Analyze CLI arguments
     2) Generate a call tree
     :param decorator_name: Name of the decorator that should be injected
+    :param module_name: Name of the module that should be added to the "import"
+                        statement at the header of the script
+    :param module_class_name: Name of the class from the "module_name"
     :return: None
     """
     # parse CLI arguments
@@ -277,7 +280,7 @@ def main(decorator_name, module_name, class_name):
     inject_decorator(src_tree, args.n, decorator_name)
 
     # Inject "import"
-    inject_import(src_tree, module_name, class_name)
+    inject_import(src_tree, module_name, module_class_name)
 
     print_dbg_info('Modified code:')
     print_dbg_info(astunparse.unparse(src_tree))
@@ -306,7 +309,7 @@ if __name__ == '__main__':
     # example: python3 main.py -f factorial.py -p examples -n benchmark
     # TODO:
     #  - make it work for functions with an arbitrary number of arguments
-    decorator_name = 'gp.cprofile_decorator'
+    profiler_decorator_name = 'gp.cprofile_decorator'
     profiler_module_name = 'genericProfiler'
-    profiler_calss_name = 'ProfileDecorators'
-    main(decorator_name, profiler_module_name, profiler_calss_name)
+    profiler_class_name = 'ProfileDecorators'
+    main(profiler_decorator_name, profiler_module_name, profiler_class_name)
