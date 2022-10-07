@@ -88,7 +88,7 @@ def check_arg_existence(arg, arg_name, parser):
         exit(1)
 
 
-def parse_cli():
+def parse_cli(known_profiler_types):
     """
     Parse CLI arguments passed to this script and check for their correctness.
     :return: Object of parsed arguments.
@@ -103,6 +103,8 @@ def parse_cli():
                         help='Specify the project name.')
     parser.add_argument('-n', metavar='<function name>', type=str,
                         help='Function name to be analyzed.')
+    parser.add_argument('-t', metavar='<profiler type>', type=str,
+                        help='Type of the profiler to be used ("cpu", "mem").')
 
     # Check if we have enough arguments, otherwise print error message and help
     if len(sys.argv) > 1:
@@ -112,11 +114,22 @@ def parse_cli():
         check_arg_existence(args.f, 'Filename', parser)
         check_arg_existence(args.p, 'Project name', parser)
         check_arg_existence(args.n, 'Function name', parser)
+        # check_arg_existence(args.t, 'Profiler type', parser)
+        # Set default profiler type if it was not specified
+        if args.t is None:
+            args.t = "cpu"
 
         # Print some debug info
         print_dbg_info('Filename: \t' + str(args.f))
         print_dbg_info('Project name: \t' + str(args.p))
         print_dbg_info('Function name: \t' + str(args.n))
+        print_dbg_info('Profiler type: \t' + str(args.t))
+
+        # Check that the profiler type is knowns
+        if args.t not in known_profiler_types:
+            print_err_info('Unknown profiler type. Available options: '
+                           + ', '.join(known_profiler_types))
+            exit(1)
     else:
         print_err_info('No CLI arguments passed.')
         parser.print_help()
@@ -245,18 +258,39 @@ def dump_decorated_src(src_tree, working_copy_filename):
     file.close()
 
 
-def main(decorator_name, module_name, module_class_name):
+def detect_prof_type(args, known_profiler_types):
+    """
+    Detect type of the profiler
+    :param args: List of CLI arguments
+    :param known_profiler_types: List of known profiler types
+    :return: Decorator name
+    """
+    profiler_decorator_name = ''
+    # 'gp.cprofile_decorator'
+    if args.t == 'cpu':
+        profiler_decorator_name = 'gp.cprofile_decorator'
+    if args.t == 'mem':
+        profiler_decorator_name = 'gp.memory_profiler_decorator'
+
+    return profiler_decorator_name
+
+
+def main(module_name, module_class_name):
     """
     1) Analyze CLI arguments
     2) Generate a call tree
-    :param decorator_name: Name of the decorator that should be injected
     :param module_name: Name of the module that should be added to the "import"
                         statement at the header of the script
     :param module_class_name: Name of the class from the "module_name"
     :return: None
     """
-    # parse CLI arguments
-    args = parse_cli()
+    known_profiler_types = ["cpu", "mem"]
+
+    # Parse CLI arguments
+    args = parse_cli(known_profiler_types)
+
+    # Detect the profiler type
+    profiler_decorator_name = detect_prof_type(args, known_profiler_types)
 
     print_msg_with_header('', '--------------------')
     print_msg_with_header('', 'Starting decorator injector...')
@@ -277,7 +311,7 @@ def main(decorator_name, module_name, module_class_name):
     src_tree = parse_src_file(working_copy_filename)
 
     # Inject decorator into the source code
-    inject_decorator(src_tree, args.n, decorator_name)
+    inject_decorator(src_tree, args.n, profiler_decorator_name)
 
     # Inject "import"
     inject_import(src_tree, module_name, module_class_name)
@@ -309,7 +343,6 @@ if __name__ == '__main__':
     # example: python3 main.py -f factorial.py -p examples -n benchmark
     # TODO:
     #  - make it work for functions with an arbitrary number of arguments
-    profiler_decorator_name = 'gp.cprofile_decorator'
     profiler_module_name = 'genericProfiler'
     profiler_class_name = 'ProfileDecorators'
-    main(profiler_decorator_name, profiler_module_name, profiler_class_name)
+    main(profiler_module_name, profiler_class_name)
