@@ -4,6 +4,11 @@
 pip install -r requirements.txt
 ```
 
+## Call for help
+```python
+python3 main.py
+```
+
 ## Inject profiler decorators
 Example:
 ```python
@@ -15,7 +20,10 @@ This call will perform the following steps:
 `taylor_exp` in file `factorial.py` 
 
 After the call, go to the directory with a working copy and execute your scripts 
-as usual.  
+as usual.
+
+If the function of interest is a member function of a class, then the class name 
+should be prependet to the function name and separated by dot as follows: `className.functionName` 
 
 Note that the working copy has a unique based name based on the time stamp and 
 is not deleted after the call.
