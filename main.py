@@ -344,5 +344,6 @@ if __name__ == '__main__':
     profiler_types = {'cpu': 'gp.cprofile_decorator',
                       'mem': 'gp.memory_profiler_decorator',
                       'call_stack': 'gp.pyinstrument_decorator',
+                      'thread': 'gp.yappi_decorator',
                       }
     main(profiler_types, profiler_module_name, profiler_class_name)
