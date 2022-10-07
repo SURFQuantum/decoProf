@@ -1,7 +1,7 @@
 import cProfile
 import pyinstrument
 import yappi
-import line_profiler
+# import line_profiler
 import memory_profiler
 
 
@@ -46,16 +46,16 @@ class ProfileDecorators():
 
         return profiler_wrapper
 
-    def line_profiler_decorator(function):
-        def profiler_wrapper(*args, **kwargs):
-            print("Start profiling (line_profiler)")
-            lp = line_profiler.LineProfiler()
-            lp_wrapper = lp(function)
-            lp_wrapper()
-            lp.print_stats()
-            print("End profiling  (line_profiler)")
-
-        return profiler_wrapper
+    # def line_profiler_decorator(function):
+    #     def profiler_wrapper(*args, **kwargs):
+    #         print("Start profiling (line_profiler)")
+    #         lp = line_profiler.LineProfiler()
+    #         lp_wrapper = lp(function)
+    #         lp_wrapper()
+    #         lp.print_stats()
+    #         print("End profiling  (line_profiler)")
+    #
+    #     return profiler_wrapper
 
     def memory_profiler_decorator(function):
         def profiler_wrapper(*args, **kwargs):

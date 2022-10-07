@@ -55,7 +55,8 @@ def generate_call_tree(args, working_dir_name):
     print_dbg_info('Output filename: \t' + output_filename)
 
     # Execute PyCG
-    subprocess.run(['pycg', '--package', str(args.p), str(args.f), '-o', output_filename])
+    subprocess.run(['pycg', '--package', str(args.p), str(args.p) + '/' + str(args.f),
+                    '-o', output_filename])
 
     return output_filename
 
@@ -137,7 +138,7 @@ def append_decorator_to_tree(node, function_name, decorator_name):
             if child.name == function_name:
                 print_dbg_info('function_name: ' + child.name)
                 print_dbg_info('original decorator_list: ')
-                print_dbg_info(node.decorator_list)
+                print_dbg_info(child.decorator_list)
 
                 child.decorator_list.append(ast.Name(id=decorator_name, ctx=ast.Load()))
 
@@ -145,21 +146,27 @@ def append_decorator_to_tree(node, function_name, decorator_name):
                 print_dbg_info(child.decorator_list)
 
 
-def inject_decorator(src_tree, function_name):
+def inject_decorator(src_tree, function_name, decorator_name):
     """
     Inject decorator to the AST.
     :param src_tree: AST
     :param function_name: Function name to which the decorator should be added to.
+    :param decorator_name: Name of the decorator that should be injected
     :return: None
     """
     # function_to_be_changed = 'check_size'
     pattern_names = str(function_name).split('.')
+
     is_class = False
     if len(pattern_names) > 1:
         is_class = True
+        print_dbg_info('Function "' + function_name + '" is a member of a class')
+    else:
+        print_dbg_info('Function "' + function_name + '" is not a member of a class')
 
-    decorator_name = 'test'
+    # decorator_name = 'test'
 
+    print_dbg_info(ast.dump(src_tree))
     for node in ast.walk(src_tree):
         if is_class:
             if isinstance(node, ast.ClassDef) and node.name == pattern_names[0]:
@@ -169,8 +176,20 @@ def inject_decorator(src_tree, function_name):
 
     # print_dbg_info(ast.dump(src_tree))
     #
-    print_dbg_info('Modified code:')
-    print_dbg_info(astunparse.unparse(src_tree))
+    # print_dbg_info('Modified code:')
+    # print_dbg_info(astunparse.unparse(src_tree))
+
+
+def inject_import(src_tree, module_name, class_name):
+    """
+    Inject "import" statement at the beginning of the source file
+    :param src_tree: AST
+    :param module_name: Module to be imported
+    :param class_name: Class name from the 'module_name'
+    :return: None
+    """
+    import_node = ast.ImportFrom(module=module_name, names=[ast.alias(name=class_name, asname='gp')], level=0)
+    src_tree.body.insert(0, import_node)
 
 
 def parse_src_file(filename):
@@ -226,14 +245,18 @@ def dump_decorated_src(src_tree, working_copy_filename):
     file.close()
 
 
-def main():
+def main(decorator_name, module_name, class_name):
     """
     1) Analyze CLI arguments
     2) Generate a call tree
+    :param decorator_name: Name of the decorator that should be injected
     :return: None
     """
     # parse CLI arguments
     args = parse_cli()
+
+    print_msg_with_header('', '--------------------')
+    print_msg_with_header('', 'Starting decorator injector...')
 
     # Create a temporary directory
     working_dir_name = create_tmp_dir(args)
@@ -251,10 +274,19 @@ def main():
     src_tree = parse_src_file(working_copy_filename)
 
     # Inject decorator into the source code
-    inject_decorator(src_tree, args.n)
+    inject_decorator(src_tree, args.n, decorator_name)
+
+    # Inject "import"
+    inject_import(src_tree, module_name, class_name)
+
+    print_dbg_info('Modified code:')
+    print_dbg_info(astunparse.unparse(src_tree))
 
     # Write modified tree back into the file
     dump_decorated_src(src_tree, working_copy_filename)
+
+    print_msg_with_header('', '--------------------')
+    print_msg_with_header('', 'Done!')
 
 
 if __name__ == '__main__':
@@ -269,8 +301,12 @@ if __name__ == '__main__':
     User input: -f vector.py -n Vector.add 
     """
 
-    print_msg_with_header('', 'Starting decorator injection...')
+    print_msg_with_header('', '')
 
-    main()
-
-    print_msg_with_header('', 'Done!')
+    # example: python3 main.py -f factorial.py -p examples -n benchmark
+    # TODO:
+    #  - make it work for functions with an arbitrary number of arguments
+    decorator_name = 'gp.cprofile_decorator'
+    profiler_module_name = 'genericProfiler'
+    profiler_calss_name = 'ProfileDecorators'
+    main(decorator_name, profiler_module_name, profiler_calss_name)
