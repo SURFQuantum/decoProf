@@ -10,11 +10,11 @@ class ProfileDecorators():
         pass
 
     def cprofile_decorator(function):
-        def profiler_wrapper(*args,**kwargs):
+        def profiler_wrapper(*args, **kwargs):
             print("Start profiling (CProfile)")
             pr = cProfile.Profile()
             pr.enable()
-            function()
+            function(*args, **kwargs)
             pr.disable()
             pr.print_stats()
             print("End profiling  (CProfile)")
@@ -26,7 +26,7 @@ class ProfileDecorators():
             print("Start profiling (pyinstrument)")
             pr = pyinstrument.Profiler()
             pr.start()
-            function()
+            function(*args, **kwargs)
             pr.stop()
             pr.print()
             print("End profiling  (pyinstrument)")
@@ -39,7 +39,7 @@ class ProfileDecorators():
             print("Start profiling (yappi)")
             yappi.set_clock_type("cpu")
             yappi.start()
-            function()
+            function(*args, **kwargs)
             yappi.get_func_stats().print_all()
             yappi.get_thread_stats().print_all()
             print("End profiling  (yappi)")
@@ -62,6 +62,7 @@ class ProfileDecorators():
             print("Start profiling (memory_profiler)")
             lp = memory_profiler.profile()
             lp_wrapper = lp(function)
+            # lp_wrapper = lp(function(*args, **kwargs))
             lp_wrapper()
             print("End profiling  (memory_profiler)")
 
