@@ -5,7 +5,7 @@ import yappi
 import memory_profiler
 
 
-class ProfileDecorators():
+class ProfileDecorators:
     def __init__(self):
         pass
 
@@ -51,7 +51,7 @@ class ProfileDecorators():
     #         print("Start profiling (line_profiler)")
     #         lp = line_profiler.LineProfiler()
     #         lp_wrapper = lp(function)
-    #         lp_wrapper()
+    #         lp_wrapper(*args, **kwargs)
     #         lp.print_stats()
     #         print("End profiling  (line_profiler)")
     #
@@ -62,8 +62,7 @@ class ProfileDecorators():
             print("Start profiling (memory_profiler)")
             lp = memory_profiler.profile()
             lp_wrapper = lp(function)
-            # lp_wrapper = lp(function(*args, **kwargs))
-            lp_wrapper()
+            lp_wrapper(*args, **kwargs)
             print("End profiling  (memory_profiler)")
 
         return profiler_wrapper
