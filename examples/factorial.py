@@ -25,8 +25,10 @@ def taylor_sin(n):
 # @gp.line_profiler_decorator
 # @gp.memory_profiler_decorator
 def benchmark():
-    print('taylor_exp: ', taylor_exp(100))
-    print('taylor_sin: ', taylor_sin(100))
+    # print('taylor_exp: ', taylor_exp(100))
+    # print('taylor_sin: ', taylor_sin(100))
+    taylor_exp(100)
+    taylor_sin(100)
 
 
 if __name__ == '__main__':
