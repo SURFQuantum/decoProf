@@ -95,6 +95,7 @@ def parse_cli(known_profiler_types):
     """
     # Instantiate the parser
     args = None
+    profiler_keys = known_profiler_types.keys()
     parser = argparse.ArgumentParser(prog='ctg', usage='%(prog)s [options]',
                                      description='Create call tree.')
     parser.add_argument('-f', metavar='<filename>', type=str,
@@ -106,7 +107,7 @@ def parse_cli(known_profiler_types):
     parser.add_argument('-t', metavar='<profiler type>', type=str,
                         help='Type of the profiler to be used '
                              '(available options: '
-                             + ', '.join(known_profiler_types.keys()) + ').')
+                             + ', '.join(profiler_keys) + ').')
 
     # Check if we have enough arguments, otherwise print error message and help
     if len(sys.argv) > 1:
@@ -128,9 +129,9 @@ def parse_cli(known_profiler_types):
         print_dbg_info('Profiler type: \t' + str(args.t))
 
         # Check that the profiler type is knowns
-        if args.t not in known_profiler_types.keys():
+        if args.t not in profiler_keys:
             print_err_info('Unknown profiler type. Available options: '
-                           + ', '.join(known_profiler_types.keys()))
+                           + ', '.join(profiler_keys))
             exit(1)
     else:
         print_err_info('No CLI arguments passed.')
