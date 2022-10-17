@@ -41,9 +41,15 @@ is not deleted after the call.
 At the moment, only four profilers are available. The types and the corresponding `-t` options are 
 listed in the table below:
 
-| Profiler         |     -t     |                     Notes                     |
-|------------------|:----------:|:---------------------------------------------:|
-| cProfile         |    cpu     |       Default CPU profiler, a bit slow        |
-| pyinstrument     | call_stack |    Report the call stack and elapsed times    |
-| yappi            |   thread   | Allows to profile multi-threaded applications |
-| memory_profiler  |    mem     |                Memory profiler                |
+| Profiler         |     -t     |                     Notes                                     |
+|------------------|:----------:|:-------------------------------------------------------------:|
+| cProfile         |    cpu     |       Default CPU profiler, a bit slow (deterministic)        |
+| pyinstrument     | call_stack |    Report the call stack and elapsed times (statistical)      |
+| yappi            |   thread   | Allows to profile multi-threaded applications (deterministic) |
+| memory_profiler  |    mem     |                Memory profiler                                |
+
+### What are "deterministic" and "statistical" profilers?
+#### Deterministic
+Deterministic profilers work by hooking into several function call/leave events and calculate all metrics according to these. 
+#### Statistical
+Statistical profilers do not track every function call the program makes but they record the call stack every 1ms or whatever defined in the interval. The statistical profilers can impose less overhead compared to the deterministic ones.
