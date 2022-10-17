@@ -32,7 +32,7 @@ PYTHONPATH="${PWD}/..:$PYTHONPATH" python3 factorial.py
 ```
 
 If the function of interest is a member function of a class, then the class name 
-should be prependet to the function name and separated by dot as follows: `className.functionName` 
+should be prepended to the function name and separated by "dot", e.g. `className.functionName` 
 
 Note that the working copy has a unique based name based on the time stamp and 
 is not deleted after the call.
