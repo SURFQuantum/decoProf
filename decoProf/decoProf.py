@@ -231,7 +231,7 @@ def create_tmp_dir(args):
     :return: Name of the created directory
     """
     timestamp = str(time.time()).replace('.', '')
-    dir_name = str(args.p) + "_" + timestamp
+    dir_name = os.path.basename(args.p) + "_" + timestamp
 
     print_dbg_info('Creating temporary directory: ' + dir_name)
     os.mkdir(dir_name)
@@ -248,7 +248,7 @@ def make_working_copy_of_src(src_dir_name, dst_dir_name):
     """
     print_dbg_info('Copying sources to the temporary directory: ' + src_dir_name
                    + ' --> ' + dst_dir_name)
-    shutil.copytree('./' + src_dir_name, './' + dst_dir_name, dirs_exist_ok=True)
+    shutil.copytree(src_dir_name, dst_dir_name, dirs_exist_ok=True)
 
 
 def dump_decorated_src(src_tree, working_copy_filename):
@@ -350,12 +350,9 @@ def main():
                       }
     run(profiler_types, profiler_module_name, profiler_class_name)
 
-    # TODO:
-    # - test creation of virtualenv
-    # - test the code on more complex examples
-    # - write the installation script (setup.py?)
-    # - make sure the code can be called from the console (see previous point)
-
 
 if __name__ == '__main__':
     main()
+
+# TODO:
+# - test the code on more complex examples
