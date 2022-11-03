@@ -273,7 +273,7 @@ def detect_prof_type(args, known_profiler_types):
     return known_profiler_types[args.t]
 
 
-def main(profiler_types, module_name, module_class_name):
+def run(profiler_types, module_name, module_class_name):
     """
     1) Analyze CLI arguments
     2) Generate a call tree
@@ -325,7 +325,8 @@ def main(profiler_types, module_name, module_class_name):
                           % working_copy_filename)
 
 
-if __name__ == '__main__':
+def main():
+
     """
     User should specify a function name including the class name the function belongs 
     to, e.g.:
@@ -347,4 +348,14 @@ if __name__ == '__main__':
                       'call_stack': 'gp.pyinstrument_decorator',
                       'thread': 'gp.yappi_decorator',
                       }
-    main(profiler_types, profiler_module_name, profiler_class_name)
+    run(profiler_types, profiler_module_name, profiler_class_name)
+
+    # TODO:
+    # - test creation of virtualenv
+    # - test the code on more complex examples
+    # - write the installation script (setup.py?)
+    # - make sure the code can be called from the console (see previous point)
+
+
+if __name__ == '__main__':
+    main()
