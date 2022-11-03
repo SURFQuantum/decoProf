@@ -1,9 +1,18 @@
 # HowTo
-## Install 3rd-party packages
+## Installation
+### Using `requirements.txt`
 Use the list of packages from `requirements.txt` to prepare your environment:
-```python
+```bash
 pip install -r requirements.txt
 ```
+After this, add the path to the `decoProf` folder to the `PyTHONPATH` environment variable.
+
+### Using `setup.py`
+Call for:
+```bash
+python3 install .
+```
+This will install `decoProf` as a binary and as a site package along with other `site-packages` on your system.
 
 ## Print help
 Simply call the `main.py` script without any arguments to print the help message:
@@ -16,9 +25,15 @@ The code injects decorators in front of the functions that should be profiled.
 Therefore, the user should specify the function (and the class) name, the file where
 the function is defined, and the name of the project to which the file belongs to.
 Here is an example call:
+1. If `decoProf` is not installed using `setup.py`:
 ```python
 python3 main.py -f factorial.py -p examples -n taylor_exp -t cpu
 ```
+2. If `decoProf` is installed using `setup.py`:
+```python
+decoProf -f factorial.py -p examples -n taylor_exp -t cpu
+```
+
 Execution of the line above will perform the following steps:
 1. create a working copy of the package `example`
 2. add a decorator that corresponds to the `cpu` profiler to the `taylor_exp`
