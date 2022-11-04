@@ -10,14 +10,20 @@ After this, add the path to the `decoProf` folder to the `PyTHONPATH` environmen
 ### Using `setup.py`
 Call for:
 ```bash
-pip install .
+$ pip3 install .
 ```
-This will install `decoProf` as a binary and as a site package along with other `site-packages` on your system.
+This will install `decoProf` as a binary and as a site package along with other 
+`site-packages` on your system.
 
 ## Print help
-Simply call the `main.py` script without any arguments to print the help message:
-```python
-python3 main.py
+If you didn't install the package using `setup.py`, then call for the `decoPrfom.py` 
+script from the `decoProf` folder without any arguments to print the help message:
+```bash
+$ python3 decoProf.py
+```
+If you installed the package using `setup.py`, then simply call for:
+```bash
+$ decoProf
 ```
 
 ## Inject profiler decorators
@@ -26,12 +32,12 @@ Therefore, the user should specify the function (and the class) name, the file w
 the function is defined, and the name of the project to which the file belongs to.
 Here is an example call:
 1. If `decoProf` is not installed using `setup.py`:
-```python
-python3 main.py -f factorial.py -p examples -n taylor_exp -t cpu
+```bash
+$ python3 decoProf.py -f factorial.py -p examples -n taylor_exp -t cpu
 ```
 2. If `decoProf` is installed using `setup.py`:
-```python
-decoProf -f factorial.py -p examples -n taylor_exp -t cpu
+```bash
+$ decoProf -f factorial.py -p examples -n taylor_exp -t cpu
 ```
 
 Execution of the line above will perform the following steps:
@@ -42,8 +48,13 @@ function in the `factorial.py` file
 After the call, go to the directory with a working copy and execute your scripts 
 as usual. Don't forget to modify `PYTHONPATH` to let `python` know that the directory 
 with `decoProf` exists:
-```python
-PYTHONPATH="${PWD}/..:$PYTHONPATH" python3 factorial.py
+1. If `decoProf` is not installed using `setup.py`:
+```bash
+$ PYTHONPATH="<path_to_decoProf_folder>:$PYTHONPATH" python3 factorial.py
+```
+2. If `decoProf` is installed using `setup.py`:
+```bash
+$ python3 factorial.py
 ```
 
 If the function of interest is a member function of a class, then the class name 
