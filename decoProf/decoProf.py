@@ -9,6 +9,9 @@ import ast
 import astunparse
 
 
+PACKAGE_NAME = 'decoProf'
+
+
 def print_msg_with_header(msg_header, msg):
     """
     Print a message with a header to terminal
@@ -203,7 +206,8 @@ def inject_import(src_tree, module_name, class_name):
     :param class_name: Class name from the 'module_name'
     :return: None
     """
-    import_node = ast.ImportFrom(module=module_name,
+    full_module_name = PACKAGE_NAME + '.' + module_name
+    import_node = ast.ImportFrom(module=full_module_name,
                                  names=[ast.alias(name=class_name, asname='gp')],
                                  level=0)
     src_tree.body.insert(0, import_node)

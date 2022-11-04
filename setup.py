@@ -24,12 +24,12 @@ setup(
     packages=find_packages(),
     py_modules=[NAME],
     license='MIT',
-    long_description='{NAME} is a small wrapper script that allows '
+    long_description='{} is a small wrapper script that allows '
                      'profiling Python packages in a simple and intuitive '
-                     'manner.',
+                     'manner.'.format(NAME),
     entry_points={
         'console_scripts': [
-            'decoProf = decoProf.decoProf:main',
+            '{} = {}.{}:main'.format(NAME, NAME, NAME),
         ],
     },
 )
