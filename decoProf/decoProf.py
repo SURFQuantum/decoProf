@@ -54,11 +54,12 @@ def generate_call_tree(args, working_dir_name):
     :return: Output filename
     """
     # Assemble unique output filename
-    output_filename = working_dir_name + '/' + working_dir_name + '.json'
+    output_filename = os.path.join(working_dir_name, working_dir_name + '.json')
     print_dbg_info('Output filename: \t' + output_filename)
 
     # Execute PyCG
-    subprocess.run(['pycg', '--package', str(args.p), str(args.p) + '/' + str(args.f),
+    subprocess.run(['pycg', '--package', str(args.p),
+                    os.path.join(str(args.p), str(args.f)),
                     '-o', output_filename])
 
     return output_filename
@@ -307,7 +308,8 @@ def run(profiler_types, module_name, module_class_name):
     call_tree = read_call_tree(call_tree_filename)
 
     # Run AST
-    working_copy_filename = working_dir_name + '/' + os.path.basename(args.f)
+    # working_copy_filename = working_dir_name + '/' + os.path.basename(args.f)
+    working_copy_filename = os.path.join(working_dir_name, args.f)
     print_dbg_info(working_copy_filename)
     src_tree = parse_src_file(working_copy_filename)
 
