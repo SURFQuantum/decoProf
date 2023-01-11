@@ -129,7 +129,10 @@ def parse_cli(known_profiler_types):
     parser.add_argument('-p', metavar='<project name>', type=str,
                         help='Specify the project name.')
     parser.add_argument('-n', metavar='<function name>', type=str,
-                        help='Function name to be analyzed.')
+                        help='Function name to be analyzed. If the function is an inner '
+                             'function or a class member, the name of the corresponding '
+                             'outer function or class should be prepended to the function '
+                             'name and separated by the dot, e.g. "-n foo.bar".')
     parser.add_argument('-t', metavar='<profiler type>', type=str,
                         help='Type of the profiler to be used '
                              '(available options: '
@@ -196,13 +199,12 @@ def inject_decorator(src_tree, function_name, decorator_name):
     :param decorator_name: Name of the decorator that should be injected
     :return: None
     """
-    # function_to_be_changed = 'check_size'
     pattern_names = str(function_name).split('.')
 
     is_class = False
     if len(pattern_names) > 1:
         is_class = True
-        print_dbg_info('Function "' + function_name + '" is a member of a class')
+        print_dbg_info('Function "' + function_name + '" is a member of a class or an inner function')
     else:
         print_dbg_info('Function "' + function_name + '" is not a member of a class')
 
@@ -213,10 +215,13 @@ def inject_decorator(src_tree, function_name, decorator_name):
 
     for node in ast.walk(src_tree):
         if is_class:
-            if isinstance(node, ast.ClassDef) and node.name == pattern_names[0]:
+            if isinstance(node, ast.ClassDef) and node.name == pattern_names[0] \
+                    or isinstance(node, ast.FunctionDef) and node.name == pattern_names[0]:
                 append_decorator_to_tree(node, pattern_names[1], decorator_name)
+                break
         else:
             append_decorator_to_tree(node, pattern_names[0], decorator_name)
+            break
 
     # print_dbg_info(ast.dump(src_tree))
     #
