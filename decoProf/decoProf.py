@@ -374,22 +374,7 @@ if __name__ == '__main__':
 
 # TODO:
 # - test the code on more complex examples
-# - Add support for nested functions
-# `== DEBUG == Filename:     train.py
-# == DEBUG == Project name:     /home/monicar/unpatch_amg/learning-amg
-# == DEBUG == Function name:     create_dataset
-# == DEBUG == Profiler type:     cpu
-# --------------------
-# Starting decorator injector...
-# == DEBUG == Creating temporary directory with name: learning-amg_16734370918787427
-# == DEBUG == Copying sources to the temporary directory: /home/monicar/unpatch_amg/learning-amg --> learning-amg_16734370918787427
-# == DEBUG == Output filename:     learning-amg_16734370918787427/learning-amg_16734370918787427.json
-# == DEBUG == learning-amg_16734370918787427/train.py
-# == DEBUG == Function "create_dataset" is not a member of a class
-# == DEBUG == Module(body=[Import(names=[alias(name='sys', asname=None)]), Import(names=[alias(name='matlab.engine', asname=None)]),`
-#
 # - Redirect the DBG messages to files
-# - Dump AST to the file
 #
 # - add profiler:
 # 	https://pypi.org/project/scalene/
