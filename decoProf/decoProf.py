@@ -129,7 +129,10 @@ def parse_cli(known_profiler_types):
     parser.add_argument('-p', metavar='<project name>', type=str,
                         help='Specify the project name.')
     parser.add_argument('-n', metavar='<function name>', type=str,
-                        help='Function name to be analyzed.')
+                        help='Function name to be analyzed. If the function is an inner '
+                             'function or a class member, the name of the corresponding '
+                             'outer function or class should be prepended to the function '
+                             'name and separated by the dot, e.g. "-n foo.bar".')
     parser.add_argument('-t', metavar='<profiler type>', type=str,
                         help='Type of the profiler to be used '
                              '(available options: '
