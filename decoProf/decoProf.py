@@ -55,7 +55,7 @@ def generate_call_tree(args, working_dir_name):
     """
     # Assemble unique output filename
     output_filename = os.path.join(working_dir_name, working_dir_name + '.json')
-    print_dbg_info('Output filename: \t' + output_filename)
+    print_dbg_info('Call tree is written to the file: \t' + output_filename)
 
     # Execute PyCG
     subprocess.run(['pycg', '--package', str(args.p),
@@ -75,6 +75,28 @@ def read_call_tree(filename):
     with open(filename) as json_file:
         call_tree = json.load(json_file)
     return call_tree
+
+
+def write_to_file(file_name, body):
+    """
+    Write "body" into a file "file_name"
+    :param file_name: Filename
+    :param body: File bofy
+    :return: None
+    """
+    file = open(file_name, 'w')
+    file.write(body)
+    file.close()
+
+
+def dump_decorated_src(src_tree, working_copy_filename):
+    """
+    Write AST to the file
+    :param src_tree: AST object
+    :param working_copy_filename: Filename AST should be written into
+    :return: None
+    """
+    write_to_file(working_copy_filename, astunparse.unparse(src_tree))
 
 
 def check_arg_existence(arg, arg_name, parser):
@@ -156,13 +178,13 @@ def append_decorator_to_tree(node, function_name, decorator_name):
     for child in ast.iter_child_nodes(node):
         if isinstance(child, ast.FunctionDef):
             if child.name == function_name:
-                print_dbg_info('function_name: ' + child.name)
-                print_dbg_info('original decorator_list: ')
+                print_dbg_info('Function_name: ' + child.name)
+                print_dbg_info('Original decorator_list: ')
                 print_dbg_info(child.decorator_list)
 
                 child.decorator_list.append(ast.Name(id=decorator_name, ctx=ast.Load()))
 
-                print_dbg_info('modified decorator_list: ')
+                print_dbg_info('Modified decorator_list: ')
                 print_dbg_info(child.decorator_list)
 
 
@@ -184,7 +206,10 @@ def inject_decorator(src_tree, function_name, decorator_name):
     else:
         print_dbg_info('Function "' + function_name + '" is not a member of a class')
 
-    print_dbg_info(ast.dump(src_tree))
+    # print_dbg_info(ast.dump(src_tree))
+    file_name = function_name + '_ast.json'
+    write_to_file(file_name, ast.dump(src_tree))
+    print_dbg_info('AST is written to the file: ' + file_name)
 
     for node in ast.walk(src_tree):
         if is_class:
@@ -256,18 +281,6 @@ def make_working_copy_of_src(src_dir_name, dst_dir_name):
     shutil.copytree(src_dir_name, dst_dir_name, dirs_exist_ok=True)
 
 
-def dump_decorated_src(src_tree, working_copy_filename):
-    """
-    Write AST to the file
-    :param src_tree: AST object
-    :param working_copy_filename: Filename AST should be written into
-    :return: None
-    """
-    file = open(working_copy_filename, 'w')
-    file.write(astunparse.unparse(src_tree))
-    file.close()
-
-
 def detect_prof_type(args, known_profiler_types):
     """
     Detect type of the profiler
@@ -308,9 +321,8 @@ def run(profiler_types, module_name, module_class_name):
     call_tree = read_call_tree(call_tree_filename)
 
     # Run AST
-    # working_copy_filename = working_dir_name + '/' + os.path.basename(args.f)
     working_copy_filename = os.path.join(working_dir_name, args.f)
-    print_dbg_info(working_copy_filename)
+    print_dbg_info("Working copy filename: " + working_copy_filename)
     src_tree = parse_src_file(working_copy_filename)
 
     # Inject decorator into the source code
@@ -362,3 +374,23 @@ if __name__ == '__main__':
 
 # TODO:
 # - test the code on more complex examples
+# - Add support for nested functions
+# `== DEBUG == Filename:     train.py
+# == DEBUG == Project name:     /home/monicar/unpatch_amg/learning-amg
+# == DEBUG == Function name:     create_dataset
+# == DEBUG == Profiler type:     cpu
+# --------------------
+# Starting decorator injector...
+# == DEBUG == Creating temporary directory with name: learning-amg_16734370918787427
+# == DEBUG == Copying sources to the temporary directory: /home/monicar/unpatch_amg/learning-amg --> learning-amg_16734370918787427
+# == DEBUG == Output filename:     learning-amg_16734370918787427/learning-amg_16734370918787427.json
+# == DEBUG == learning-amg_16734370918787427/train.py
+# == DEBUG == Function "create_dataset" is not a member of a class
+# == DEBUG == Module(body=[Import(names=[alias(name='sys', asname=None)]), Import(names=[alias(name='matlab.engine', asname=None)]),`
+#
+# - Redirect the DBG messages to files
+# - Dump AST to the file
+#
+# - add profiler:
+# 	https://pypi.org/project/scalene/
+# 	https://github.com/plasma-umass/scalene
