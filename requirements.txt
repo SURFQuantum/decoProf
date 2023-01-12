@@ -3,3 +3,4 @@ astunparse
 pyinstrument
 yappi
 memory_profiler
+line-profiler

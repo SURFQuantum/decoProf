@@ -67,12 +67,13 @@ execution of `main.py`.
 At the moment, only four profilers are available. The types and the corresponding `-t` options are 
 listed in the table below:
 
-| Profiler         |     -t     |                     Notes                                     |
+| Profiler         |     -t     |                             Notes                             |
 |------------------|:----------:|:-------------------------------------------------------------:|
 | cProfile         |    cpu     |       Default CPU profiler, a bit slow (deterministic)        |
-| pyinstrument     | call_stack |    Report the call stack and elapsed times (statistical)      |
+| pyinstrument     | call_stack |     Report the call stack and elapsed times (statistical)     |
 | yappi            |   thread   | Allows to profile multi-threaded applications (deterministic) |
-| memory_profiler  |    mem     |                Memory profiler                                |
+| memory_profiler  |    mem     |                        Memory profiler                        |
+| line_profiler    |    line    |                         Line profiler                         |
 
 
 ### What are "deterministic" and "statistical" profilers?

@@ -370,6 +370,7 @@ def main():
                       'mem': 'gp.memory_profiler_decorator',
                       'call_stack': 'gp.pyinstrument_decorator',
                       'thread': 'gp.yappi_decorator',
+                      'line': 'gp.line_profiler_decorator',
                       }
     run(profiler_types, profiler_module_name, profiler_class_name)
 
