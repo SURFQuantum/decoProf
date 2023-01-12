@@ -20,6 +20,7 @@ setup(
         'pyinstrument',
         'yappi',
         'memory_profiler',
+        'line-profiler',
     ],
     packages=find_packages(),
     py_modules=[NAME],
