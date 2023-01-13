@@ -18,6 +18,8 @@ class Core:
                                 statement at the header of the script
         :_profiler_class_name: Name of the class from the "module_name"
         :_io_man: Object of the IO manager
+        :function_name: Function name to which the decorator should be added to
+        :decorator_name: Name of the decorator that should be injected
         """
         self._profiler_module_name = 'genericProfiler'
         self._profiler_class_name = 'ProfileDecorators'
@@ -28,6 +30,11 @@ class Core:
                                 'line': 'gp.line_profiler_decorator',
                                 }
         self._io_man = IOManager()
+
+        self.file_name = ''
+        self.project_name = ''
+        self.function_name = ''
+        self.decorator_name = ''
 
     def generate_call_tree(self, args):
         """
@@ -92,25 +99,23 @@ class Core:
                     self._io_man.print_dbg_info('Modified decorator_list: ')
                     self._io_man.print_dbg_info(child.decorator_list)
 
-    def inject_decorator(self, src_tree, function_name, decorator_name):
+    def inject_decorator(self, src_tree):
         """
         Inject decorator to the AST
         :param src_tree: AST
-        :param function_name: Function name to which the decorator should be added to
-        :param decorator_name: Name of the decorator that should be injected
         :return: None
         """
-        pattern_names = str(function_name).split('.')
+        pattern_names = str(self.function_name).split('.')
 
         is_class = False
         if len(pattern_names) > 1:
             is_class = True
-            self._io_man.print_dbg_info('Function "' + function_name + '" is a member of a class or an inner function')
+            self._io_man.print_dbg_info('Function "' + self.function_name + '" is a member of a class or an inner function')
         else:
-            self._io_man.print_dbg_info('Function "' + function_name + '" is not a member of a class')
+            self._io_man.print_dbg_info('Function "' + self.function_name + '" is not a member of a class')
 
         # print_dbg_info(ast.dump(src_tree))
-        file_name = function_name + '_ast.json'
+        file_name = os.path.join(self._io_man.get_working_dir_name(), self.file_name + '_ast.json')
         self._io_man.write_to_file(file_name, ast.dump(src_tree))
         self._io_man.print_dbg_info('AST is written to the file: ' + file_name)
 
@@ -118,10 +123,10 @@ class Core:
             if is_class:
                 if isinstance(node, ast.ClassDef) and node.name == pattern_names[0] \
                         or isinstance(node, ast.FunctionDef) and node.name == pattern_names[0]:
-                    self.append_decorator_to_tree(node, pattern_names[1], decorator_name)
+                    self.append_decorator_to_tree(node, pattern_names[1], self.decorator_name)
                     break
             else:
-                self.append_decorator_to_tree(node, pattern_names[0], decorator_name)
+                self.append_decorator_to_tree(node, pattern_names[0], self.decorator_name)
                 break
 
         # print_dbg_info(ast.dump(src_tree))
@@ -129,17 +134,15 @@ class Core:
         # print_dbg_info('Modified code:')
         # print_dbg_info(astunparse.unparse(src_tree))
 
-    def inject_import(self, src_tree, module_name, class_name):
+    def inject_import(self, src_tree):
         """
         Inject "import" statement at the beginning of the source file
         :param src_tree: AST
-        :param module_name: Module to be imported
-        :param class_name: Class name from the 'module_name'
         :return: None
         """
-        full_module_name = PACKAGE_NAME + '.' + module_name
+        full_module_name = PACKAGE_NAME + '.' + self._profiler_module_name
         import_node = ast.ImportFrom(module=full_module_name,
-                                     names=[ast.alias(name=class_name, asname='gp')],
+                                     names=[ast.alias(name=self._profiler_class_name, asname='gp')],
                                      level=0)
         src_tree.body.insert(0, import_node)
 
@@ -173,33 +176,36 @@ class Core:
         """
         # Parse CLI arguments
         args = self._io_man.parse_cli(self._profiler_types)
+        self.file_name = args.f
+        self.project_name = args.p
+        self.function_name = args.n
 
         # Detect the profiler type
-        profiler_decorator_name = self.detect_prof_type(args)
+        self.decorator_name = self.detect_prof_type(args)
 
         self._io_man.print_msg_with_header('', '--------------------')
         self._io_man.print_msg_with_header('', 'Starting the decorator injector...')
 
         # Create a temporary directory
-        self._io_man.create_working_dir(args.p)
+        self._io_man.create_working_dir(self.project_name)
 
         # Make a working copy of the scripts we are going to work with
-        self._io_man.make_working_copy_of_project(args.p)
+        self._io_man.make_working_copy_of_project(self.project_name)
 
         # Run call tree generator
         call_tree_filename = self.generate_call_tree(args)
         # call_tree = self.read_call_tree(call_tree_filename)
 
         # Run AST
-        working_copy_filename = os.path.join(self._io_man.get_working_dir_name(), args.f)
+        working_copy_filename = os.path.join(self._io_man.get_working_dir_name(), self.file_name)
         self._io_man.print_dbg_info("Working copy filename: " + working_copy_filename)
         src_tree = self.parse_src_file(working_copy_filename)
 
         # Inject decorator into the source code
-        self.inject_decorator(src_tree, args.n, profiler_decorator_name)
+        self.inject_decorator(src_tree)
 
         # Inject "import" statement into the source code
-        self.inject_import(src_tree, self._profiler_module_name, self._profiler_class_name)
+        self.inject_import(src_tree)
 
         self._io_man.print_dbg_info('Modified code:')
         self._io_man.print_dbg_info(astunparse.unparse(src_tree))

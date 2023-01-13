@@ -3,6 +3,7 @@ import os
 import argparse
 import sys
 import shutil
+import errno
 
 
 class IOManager:
@@ -11,10 +12,10 @@ class IOManager:
 
     def get_working_dir_name(self):
         if not self._working_dir_name:
-            return self._working_dir_name
-        else:
             self.print_err_info('Empty name of the working directory.')
-            exit(1)
+            exit(errno.EFAULT)
+        else:
+            return self._working_dir_name
 
     def set_working_dir_name(self, name):
         self._working_dir_name = name
@@ -59,17 +60,35 @@ class IOManager:
         file.write(body)
         file.close()
 
+    def check_if_project_exists(self, project_name):
+        """
+        Check if project folder exists
+        :param project_name: Name of the project folder
+        :return: True if project folder exists, False otherwise
+        """
+        return os.path.exists(project_name)
+
     def create_working_dir(self, project_name):
         """
         Create temporary directory with a unique name using a timestamp
-        :param project_name: List of CLI arguments
+        :param project_name: Name of the project folder
         :return: None
         """
+        # Before creating the working copy - check if the project actually exists
+        if not self.check_if_project_exists(project_name):
+            self.print_err_info('Can\'t find the project folder: ' + project_name)
+            exit(errno.EFAULT)
+
         timestamp = str(time.time()).replace('.', '')
         self.set_working_dir_name(os.path.basename(project_name) + "_" + timestamp)
 
         self.print_dbg_info('Creating temporary directory: ' + self.get_working_dir_name())
-        os.mkdir(self.get_working_dir_name())
+
+        try:
+            os.mkdir(self.get_working_dir_name())
+        except OSError as err:
+            self.print_err_info('Can\'t create a working directory: ' + err)
+            exit(errno.EFAULT)
 
     def check_arg_existence(self, arg, arg_name, parser):
         """
@@ -83,7 +102,7 @@ class IOManager:
         if arg is None:
             self.print_err_info(arg_name + ' is not specified.')
             parser.print_help()
-            exit(1)
+            exit(errno.EFAULT)
 
     def parse_cli(self, known_profiler_types):
         """
@@ -132,11 +151,11 @@ class IOManager:
             if args.t not in profiler_keys:
                 self.print_err_info('Unknown profiler type. Available options: '
                                     + ', '.join(profiler_keys))
-                exit(1)
+                exit(errno.EFAULT)
         else:
             self.print_err_info('No CLI arguments passed.')
             parser.print_help()
-            exit(1)
+            exit(errno.EFAULT)
 
         return args
 
