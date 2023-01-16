@@ -1,19 +1,15 @@
 #!/usr/bin/env python
-
-# from distutils.core import setup
 from setuptools import setup, find_packages
+from decoProf.info import PACKAGE_VERSION, PACKAGE_NAME, PACKAGE_HOMEPAGE
 
-NAME = 'decoProf'
-VERSION = '0.1.0'
-HOMEPAGE = 'https://github.com/maxim-masterov/decoProf'
 
 setup(
-    name=NAME,
-    version=VERSION,
+    name=PACKAGE_NAME,
+    version=PACKAGE_VERSION,
     description='Profiler aggregator',
     author='Maxim Masterov',
     author_email='maksim.masterov@surf.nl',
-    url=HOMEPAGE,
+    url=PACKAGE_HOMEPAGE,
     install_requires=[
         'pycg',
         'astunparse',
@@ -22,15 +18,15 @@ setup(
         'memory_profiler',
         'line-profiler',
     ],
-    packages=find_packages(),
-    py_modules=[NAME],
+    packages=[PACKAGE_NAME],
+    py_modules=[PACKAGE_NAME],
     license='MIT',
     long_description='{} is a small wrapper script that allows '
                      'profiling Python packages in a simple and intuitive '
-                     'manner.'.format(NAME),
+                     'manner.'.format(PACKAGE_NAME),
     entry_points={
         'console_scripts': [
-            '{} = {}.{}:main'.format(NAME, NAME, NAME),
+            '{} = {}.{}:main'.format(PACKAGE_NAME, PACKAGE_NAME, PACKAGE_NAME),
         ],
     },
 )
