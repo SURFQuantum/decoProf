@@ -6,7 +6,7 @@ import shutil
 import errno
 
 
-import info
+from decoProf.info import PACKAGE_NAME, PACKAGE_VERSION
 
 
 class IOManager:
@@ -115,10 +115,10 @@ class IOManager:
         # Instantiate the parser
         args = None
         profiler_keys = known_profiler_types.keys()
-        parser = argparse.ArgumentParser(prog=info.PACKAGE_NAME, usage='%(prog)s [options]',
+        parser = argparse.ArgumentParser(prog=PACKAGE_NAME, usage='%(prog)s [options]',
                                          description='Create call tree.')
         parser.add_argument('-v', '--version', action='version',
-                            version=str(info.PACKAGE_VERSION),
+                            version=str(PACKAGE_VERSION),
                             help='Print version of the package.')
         parser.add_argument('-f', metavar='<filename>', type=str,
                             help='Specify the file name.')
