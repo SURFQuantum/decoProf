@@ -2,10 +2,11 @@
 
 # from distutils.core import setup
 from setuptools import setup, find_packages
+import decoProf.info as dp_info
 
-NAME = 'decoProf'
-VERSION = '0.1.0'
-HOMEPAGE = 'https://github.com/maxim-masterov/decoProf'
+NAME = dp_info.PACKAGE_NAME
+VERSION = dp_info.PACKAGE_VERSION
+HOMEPAGE = dp_info.PACKAGE_HOMEPAGE
 
 setup(
     name=NAME,
@@ -22,7 +23,7 @@ setup(
         'memory_profiler',
         'line-profiler',
     ],
-    packages=find_packages(),
+    packages=find_packages('.'),
     py_modules=[NAME],
     license='MIT',
     long_description='{} is a small wrapper script that allows '
