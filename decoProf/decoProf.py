@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
 
 # TODO:
-# - test the code on more complex examples
+# - test code on more complex examples
 # - Redirect the DBG messages to files
 #
 # - add profiler:

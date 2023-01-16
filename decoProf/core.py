@@ -6,9 +6,6 @@ import json
 
 from io_manager import IOManager
 
-PACKAGE_NAME = 'decoProf'
-PACKAGE_VERSION = '0.0.1'
-
 
 class Core:
     def __init__(self):
@@ -36,11 +33,10 @@ class Core:
         self.function_name = ''
         self.decorator_name = ''
 
-    def generate_call_tree(self, args):
+    def generate_call_tree(self):
         """
         Generate a call tree using PyCG package (see https://github.com/vitsalis/PyCG).
         PyCG is called using a subprocess and generates a JSON file as a result of its execution
-        :param args: List of CLI arguments passed to this script
         :return: Output filename
         """
         # working_dir_name - name of the working directory where the
@@ -53,8 +49,8 @@ class Core:
         self._io_man.print_dbg_info('Call tree is written to the file: \t' + output_filename)
 
         # Execute PyCG
-        subprocess.run(['pycg', '--package', str(args.p),
-                        os.path.join(str(args.p), str(args.f)),
+        subprocess.run(['pycg', '--package', self.project_name,
+                        os.path.join(self.project_name, self.file_name),
                         '-o', output_filename])
 
         return output_filename
@@ -70,7 +66,7 @@ class Core:
             call_tree = json.load(json_file)
         return call_tree
 
-    def dump_decorated_src(self, src_tree, working_copy_filename):
+    def write_modified_src(self, src_tree, working_copy_filename):
         """
         Write AST to the file
         :param src_tree: AST object
@@ -146,7 +142,7 @@ class Core:
                                      level=0)
         src_tree.body.insert(0, import_node)
 
-    def parse_src_file(self, filename):
+    def generate_ast(self, filename):
         """
         Parse source file to build AST
         :param filename: Filename
@@ -168,10 +164,9 @@ class Core:
         """
         return self._profiler_types[args.t]
 
-    def run(self):
+    def configure(self):
         """
-        1) Analyze CLI arguments
-        2) Generate a call tree
+        Perform initial configuration of the script
         :return: None
         """
         # Parse CLI arguments
@@ -183,35 +178,72 @@ class Core:
         # Detect the profiler type
         self.decorator_name = self.detect_prof_type(args)
 
-        self._io_man.print_msg_with_header('', '--------------------')
-        self._io_man.print_msg_with_header('', 'Starting the decorator injector...')
-
+    def prepare_fs(self):
+        """
+        Prepare file system by creating a working directory and copying the original
+        sources in it
+        :return: None
+        """
         # Create a temporary directory
         self._io_man.create_working_dir(self.project_name)
 
         # Make a working copy of the scripts we are going to work with
         self._io_man.make_working_copy_of_project(self.project_name)
 
+    def assemble_wrk_copy_filename(self):
+        """
+        Assemble the filename for the working copy
+        :return: Assembled name
+        """
+        working_copy_filename = os.path.join(self._io_man.get_working_dir_name(), self.file_name)
+        self._io_man.print_dbg_info("Working copy filename: " + working_copy_filename)
+        return working_copy_filename
+
+    def modify_src(self, as_tree):
+        """
+        Modify source code by injecting a decorator and import statements
+        :param as_tree: AST
+        :return: None
+        """
+        # Inject decorator into the source code
+        self.inject_decorator(as_tree)
+
+        # Inject "import" statement into the source code
+        self.inject_import(as_tree)
+
+        self._io_man.print_dbg_info('Modified code:')
+        self._io_man.print_dbg_info(astunparse.unparse(as_tree))
+
+    def run(self):
+        """
+        1) Analyze CLI arguments
+        2) Generate a call tree
+        3) Generate an AST
+        4) Modify the source file
+        :return: None
+        """
+        # self._io_man.print_msg_with_header('', '--------------------')
+        # self._io_man.print_msg_with_header('', 'Starting the decorator injector...')
+
+        # Configure the script
+        self.configure()
+
+        # Prepare file system
+        self.prepare_fs()
+
         # Run call tree generator
-        call_tree_filename = self.generate_call_tree(args)
+        call_tree_filename = self.generate_call_tree()
         # call_tree = self.read_call_tree(call_tree_filename)
 
         # Run AST
-        working_copy_filename = os.path.join(self._io_man.get_working_dir_name(), self.file_name)
-        self._io_man.print_dbg_info("Working copy filename: " + working_copy_filename)
-        src_tree = self.parse_src_file(working_copy_filename)
+        working_copy_filename = self.assemble_wrk_copy_filename()
+        as_tree = self.generate_ast(working_copy_filename)
 
-        # Inject decorator into the source code
-        self.inject_decorator(src_tree)
+        # Modify original source code
+        self.modify_src(as_tree)
 
-        # Inject "import" statement into the source code
-        self.inject_import(src_tree)
-
-        self._io_man.print_dbg_info('Modified code:')
-        self._io_man.print_dbg_info(astunparse.unparse(src_tree))
-
-        # Write modified tree back into the file
-        self.dump_decorated_src(src_tree, working_copy_filename)
+        # Write modified AS tree back into the file
+        self.write_modified_src(as_tree, working_copy_filename)
 
         self._io_man.print_msg_with_header('', '--------------------')
         self._io_man.print_msg_with_header('', 'Finished...')
