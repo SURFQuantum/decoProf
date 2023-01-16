@@ -1,5 +1,3 @@
-# from io_manager import IOManager
-# from core import Core
 from decoProf.io_manager import IOManager
 from decoProf.core import Core
 

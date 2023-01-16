@@ -7,6 +7,7 @@ import json
 from decoProf.io_manager import IOManager
 from decoProf.info import PACKAGE_NAME
 
+
 class Core:
     def __init__(self):
         """

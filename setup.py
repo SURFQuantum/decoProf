@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-# from distutils.core import setup
 from setuptools import setup, find_packages
 from decoProf.info import PACKAGE_VERSION, PACKAGE_NAME, PACKAGE_HOMEPAGE
 
