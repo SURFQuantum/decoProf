@@ -5,7 +5,7 @@ Use the list of packages from `requirements.txt` to prepare your environment:
 ```bash
 pip install -r requirements.txt
 ```
-After this, add the path to the `decoProf` folder to the `PyTHONPATH` environment variable.
+After this, add the path to the `decoProf` folder to the `PYTHONPATH` environment variable.
 
 ### Using `setup.py`
 Call for:
