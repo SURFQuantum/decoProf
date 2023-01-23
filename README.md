@@ -16,7 +16,7 @@ This will install `decoProf` as a binary and as a site package along with other
 `site-packages` on your system.
 
 ## Print help
-If you didn't install the package using `setup.py`, then call for the `decoPrfom.py` 
+If you didn't install the package using `setup.py`, then call for the `decoProf.py` 
 script from the `decoProf` folder without any arguments to print the help message:
 ```bash
 $ python3 decoProf.py
@@ -28,8 +28,12 @@ $ decoProf
 
 ## Inject profiler decorators
 The code injects decorators in front of the functions that should be profiled.
-Therefore, the user should specify the function (and the class) name, the file where
-the function is defined, and the name of the project to which the file belongs to.
+Therefore, the user should specify the function name, the filename where the function 
+is defined, and the name of the project to which the file belongs to. If the function 
+of interest is a member function of a class or a nested function, then the user should
+prepend the class or the upper function names to the function name using '.' (dot) as
+a separator character, e.g. `-n <class_name>.<function.name>`. 
+
 Here is an example call:
 1. If `decoProf` is not installed using `setup.py`:
 ```bash
@@ -40,15 +44,15 @@ $ python3 decoProf.py -f factorial.py -p examples -n taylor_exp -t cpu
 $ decoProf -f factorial.py -p examples -n taylor_exp -t cpu
 ```
 
-Execution of the line above will perform the following steps:
+Execution of the lines above will perform the following steps:
 1. create a working copy of the package `example`
 2. add a decorator that corresponds to the `cpu` profiler to the `taylor_exp`
 function in the `factorial.py` file
 
 After the call, go to the directory with a working copy and execute your scripts 
-as usual. Don't forget to modify `PYTHONPATH` to let `python` know that the directory 
-with `decoProf` exists:
-1. If `decoProf` is not installed using `setup.py`:
+as usual:
+1. If `decoProf` is not installed using `setup.py` (Don't forget to modify `PYTHONPATH` 
+to let `python` know that the directory with `decoProf` exists):
 ```bash
 $ PYTHONPATH="<path_to_decoProf_folder>:$PYTHONPATH" python3 factorial.py
 ```
@@ -57,14 +61,11 @@ $ PYTHONPATH="<path_to_decoProf_folder>:$PYTHONPATH" python3 factorial.py
 $ python3 factorial.py
 ```
 
-If the function of interest is a member function of a class, then the class name 
-should be prepended to the function name and separated by `.` (dot), e.g. `className.functionName` 
-
 Note that the working copy has a unique name based on the time stamp and is not deleted after 
-execution of `main.py`.
+execution of `decoPrfo`.
 
 ## Profilers
-At the moment, only four profilers are available. The types and the corresponding `-t` options are 
+At the moment, only five profilers are available. The types and the corresponding `-t` options are 
 listed in the table below:
 
 | Profiler         |     -t     |                             Notes                             |
