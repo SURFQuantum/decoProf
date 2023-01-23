@@ -73,8 +73,8 @@ listed in the table below:
 | cProfile         |    cpu     |       Default CPU profiler, a bit slow (deterministic)        |
 | pyinstrument     | call_stack |     Report the call stack and elapsed times (statistical)     |
 | yappi            |   thread   | Allows to profile multi-threaded applications (deterministic) |
-| memory_profiler  |    mem     |                        Memory profiler                        |
-| line_profiler    |    line    |                         Line profiler                         |
+| memory_profiler  |    mem     |            Monitors memory consumption of a process           |
+| line_profiler    |    line    |   Profile the time individual lines of code take to execute   |
 
 
 ### What are "deterministic" and "statistical" profilers?
