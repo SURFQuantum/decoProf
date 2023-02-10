@@ -136,7 +136,7 @@ class Core:
                     break
 
         if not function_found[1]:
-            self._io_man.print_dbg_info('Function "' + pattern_name[0]
+            self._io_man.print_err_info('Function "' + pattern_name[0]
                                         + '" was not found in the file ' + self.file_name)
 
         # print_dbg_info(ast.dump(src_tree))
