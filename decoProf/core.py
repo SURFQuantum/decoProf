@@ -31,7 +31,7 @@ class Core:
 
         self.file_name = ''
         self.project_name = ''
-        self.function_name = ''
+        self.function_name = []
         self.decorator_name = ''
 
     def generate_call_tree(self):
@@ -82,8 +82,11 @@ class Core:
         :param node: Node which should contain the function
         :param function_name: Function name to which we should add decorator to
         :param decorator_name: Name of the decorator
-        :return: None
+        :return: Tuple of the function name and boolean. True, if function was found,
+                 False otherwise
         """
+        function_found = ('', False)
+
         for child in ast.iter_child_nodes(node):
             if isinstance(child, ast.FunctionDef):
                 if child.name == function_name:
@@ -95,6 +98,9 @@ class Core:
 
                     self._io_man.print_dbg_info('Modified decorator_list: ')
                     self._io_man.print_dbg_info(child.decorator_list)
+                    function_found = (function_name, True)
+
+        return function_found
 
     def inject_decorator(self, src_tree):
         """
@@ -102,29 +108,36 @@ class Core:
         :param src_tree: AST
         :return: None
         """
-        pattern_names = str(self.function_name).split('.')
+        pattern_names = [elt.split('.') for elt in self.function_name]
+        function_found = ('', False)
 
-        is_class = False
-        if len(pattern_names) > 1:
-            is_class = True
-            self._io_man.print_dbg_info('Function "' + self.function_name + '" is a member of a class or an inner function')
-        else:
-            self._io_man.print_dbg_info('Function "' + self.function_name + '" is not a member of a class')
-
-        # print_dbg_info(ast.dump(src_tree))
-        file_name = os.path.join(self._io_man.get_working_dir_name(), self.file_name + '_ast.json')
-        self._io_man.write_to_file(file_name, ast.dump(src_tree))
-        self._io_man.print_dbg_info('AST is written to the file: ' + file_name)
-
-        for node in ast.walk(src_tree):
-            if is_class:
-                if isinstance(node, ast.ClassDef) and node.name == pattern_names[0] \
-                        or isinstance(node, ast.FunctionDef) and node.name == pattern_names[0]:
-                    self.append_decorator_to_tree(node, pattern_names[1], self.decorator_name)
-                    break
+        for pattern_name in pattern_names:
+            is_class = False
+            if len(pattern_name) > 1:
+                is_class = True
+                self._io_man.print_dbg_info('Function "' + pattern_name[1] + '" is a member of a class or an inner '
+                                                                             'function')
             else:
-                self.append_decorator_to_tree(node, pattern_names[0], self.decorator_name)
-                break
+                self._io_man.print_dbg_info('Function "' + pattern_name[0] + '" is a static function')
+
+            # print_dbg_info(ast.dump(src_tree))
+            file_name = os.path.join(self._io_man.get_working_dir_name(), self.file_name + '_ast.json')
+            self._io_man.write_to_file(file_name, ast.dump(src_tree))
+            self._io_man.print_dbg_info('AST is written to the file: ' + file_name)
+
+            for node in ast.walk(src_tree):
+                if is_class:
+                    if isinstance(node, ast.ClassDef) and node.name == pattern_name[0] \
+                            or isinstance(node, ast.FunctionDef) and node.name == pattern_name[0]:
+                        function_found = self.append_decorator_to_tree(node, pattern_name[1], self.decorator_name)
+                        break
+                else:
+                    function_found = self.append_decorator_to_tree(node, pattern_name[0], self.decorator_name)
+                    break
+
+        if not function_found[1]:
+            self._io_man.print_err_info('Function "' + pattern_name[0]
+                                        + '" was not found in the file ' + self.file_name)
 
         # print_dbg_info(ast.dump(src_tree))
         #
@@ -174,7 +187,7 @@ class Core:
         args = self._io_man.parse_cli(self._profiler_types)
         self.file_name = args.f
         self.project_name = args.p
-        self.function_name = args.n
+        self.function_name = str(args.n).split(',')
 
         # Detect the profiler type
         self.decorator_name = self.detect_prof_type(args)
